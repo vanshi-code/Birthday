@@ -13,9 +13,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Dancing+Script:wght@400;600;700&family=Comfortaa:wght@300;400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-<!-- GSAP for Enhanced Animations -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<!-- Alpine.js Plugins -->
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+
+<!-- Alpine.js Core -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<!-- Three.js for 3D Models -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <style>
 /* Enhanced CSS with Animation Support */
@@ -123,90 +130,56 @@ body {
   }
 }
 
-/* Cartoon Characters */
-.cartoon-characters {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 5;
-}
-
-.character {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity: 0.8;
-  pointer-events: auto;
+/* 3D Model Containers */
+.model-3d {
+  width: 200px;
+  height: 200px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin: 1rem auto;
+  background: linear-gradient(135deg, rgba(255, 105, 180, 0.1), rgba(218, 112, 214, 0.1));
+  transition: var(--transition);
   cursor: pointer;
-  transition: transform 0.3s ease;
 }
 
-.character:hover {
-  transform: scale(1.2) rotate(10deg);
+.model-3d:hover {
+  transform: scale(1.05) rotateY(5deg);
+  box-shadow: var(--shadow-hover);
 }
 
-.character-1 {
-  top: 15%;
-  left: 3%;
-  background: radial-gradient(circle, #F4C2A1, #D4A574);
-  border-radius: 50%;
-  animation: bounce 3s ease-in-out infinite;
+.model-3d canvas {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 15px;
 }
 
-.character-2 {
-  top: 20%;
-  right: 5%;
-  background: radial-gradient(circle, #87CEEB, #4682B4);
-  border-radius: 50%;
-  animation: wiggle 4s ease-in-out infinite;
-}
-
-.character-3 {
-  bottom: 25%;
-  left: 8%;
-  background: radial-gradient(circle, #FFB6C1, #FF69B4);
-  border-radius: 50%;
-  animation: spin 5s linear infinite;
-}
-
-.character-4 {
-  bottom: 35%;
-  right: 3%;
-  background: radial-gradient(circle, #98FB98, #32CD32);
-  border-radius: 50%;
+.model-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--primary);
+  font-size: 1.2rem;
+  text-align: center;
   animation: pulse 2s ease-in-out infinite;
 }
 
-@keyframes bounce {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50% { transform: translateY(-25px) scale(1.1); }
+.model-placeholder i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
 }
 
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(5deg) scale(1.05); }
-  75% { transform: rotate(-5deg) scale(0.95); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
+/* Enhanced animations */
 @keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.2); opacity: 1; }
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 
 /* Enhanced Header with Animation */
 header {
-  position: fixed;
+  position: sticky;
   top: 0;
   width: 100%;
   background: rgba(255, 255, 255, 0.95);
@@ -247,21 +220,6 @@ header.scrolled {
   text-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
 }
 
-.logo::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  transition: width 0.3s ease;
-}
-
-.logo:hover::after {
-  width: 100%;
-}
-
 .nav-links {
   display: flex;
   list-style: none;
@@ -278,27 +236,10 @@ header.scrolled {
   border-radius: 25px;
 }
 
-.nav-links a::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  opacity: 0;
-  border-radius: 25px;
-  transition: opacity 0.3s ease;
-  z-index: -1;
-}
-
 .nav-links a:hover {
   color: var(--white);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   transform: translateY(-2px);
-}
-
-.nav-links a:hover::before {
-  opacity: 1;
 }
 
 .mobile-toggle {
@@ -309,10 +250,6 @@ header.scrolled {
   color: var(--primary);
   cursor: pointer;
   transition: var(--transition);
-}
-
-.mobile-toggle:hover {
-  transform: rotate(90deg) scale(1.1);
 }
 
 /* Enhanced Hero Section */
@@ -338,8 +275,6 @@ header.scrolled {
   color: var(--primary);
   margin-bottom: 1rem;
   font-weight: 700;
-  opacity: 0;
-  transform: translateY(50px);
   text-shadow: 0 5px 15px rgba(255, 105, 180, 0.3);
   background: linear-gradient(45deg, var(--primary), var(--secondary));
   -webkit-background-clip: text;
@@ -351,8 +286,6 @@ header.scrolled {
   font-size: 1.4rem;
   margin-bottom: 3rem;
   color: var(--dark);
-  opacity: 0;
-  transform: translateY(30px);
   font-weight: 500;
 }
 
@@ -363,8 +296,6 @@ header.scrolled {
   border-radius: 25px;
   margin: 2rem 0;
   box-shadow: var(--shadow);
-  opacity: 0;
-  transform: scale(0.8);
 }
 
 .name-reveal-text {
@@ -387,8 +318,6 @@ header.scrolled {
   border-radius: 25px;
   box-shadow: var(--shadow);
   margin: 2rem 0;
-  opacity: 0;
-  transform: translateY(40px);
   border: 2px solid rgba(255, 105, 180, 0.2);
 }
 
@@ -430,24 +359,6 @@ header.scrolled {
   min-width: 100px;
   transition: var(--transition);
   border: 2px solid rgba(255, 105, 180, 0.2);
-  position: relative;
-  overflow: hidden;
-}
-
-.countdown-item::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 105, 180, 0.1), transparent);
-  animation: shimmer 3s linear infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 .countdown-item:hover {
@@ -487,8 +398,6 @@ header.scrolled {
   text-align: center;
   margin-bottom: 4rem;
   font-weight: 700;
-  opacity: 0;
-  transform: translateY(50px);
   background: linear-gradient(45deg, var(--primary), var(--secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -516,8 +425,6 @@ header.scrolled {
   box-shadow: var(--shadow);
   margin: 2rem 0;
   border: 2px solid rgba(255, 105, 180, 0.1);
-  opacity: 0;
-  transform: translateY(50px);
   transition: var(--transition);
 }
 
@@ -534,11 +441,6 @@ header.scrolled {
   align-items: center;
 }
 
-.about-text {
-  opacity: 0;
-  transform: translateX(-50px);
-}
-
 .about-text p {
   margin-bottom: 2rem;
   font-size: 1.2rem;
@@ -547,28 +449,7 @@ header.scrolled {
 }
 
 .about-image {
-  opacity: 0;
-  transform: translateX(50px);
   position: relative;
-}
-
-.about-image::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
-  background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
-  border-radius: 25px;
-  z-index: -1;
-  opacity: 0.3;
-  animation: rotate-border 10s linear infinite;
-}
-
-@keyframes rotate-border {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 .about-image img {
@@ -630,25 +511,9 @@ header.scrolled {
   transition: var(--transition);
   text-align: center;
   border: 2px solid rgba(255, 105, 180, 0.1);
-  opacity: 0;
-  transform: translateY(50px);
   position: relative;
   overflow: hidden;
-}
-
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.1), transparent);
-  transition: left 0.5s ease;
-}
-
-.card:hover::before {
-  left: 100%;
+  cursor: pointer;
 }
 
 .card:hover {
@@ -719,7 +584,6 @@ header.scrolled {
 
 /* Enhanced Modal */
 .modal {
-  display: none;
   position: fixed;
   top: 0;
   left: 0;
@@ -728,15 +592,10 @@ header.scrolled {
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(10px);
   z-index: 2000;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.modal.active {
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 1;
+  transition: opacity 0.3s ease;
 }
 
 .modal-content {
@@ -748,13 +607,9 @@ header.scrolled {
   max-height: 80vh;
   overflow-y: auto;
   position: relative;
-  transform: scale(0.8);
+  transform: scale(1);
   transition: transform 0.3s ease;
   box-shadow: var(--shadow-hover);
-}
-
-.modal.active .modal-content {
-  transform: scale(1);
 }
 
 .close {
@@ -784,8 +639,6 @@ header.scrolled {
   border-bottom: 2px solid rgba(255, 105, 180, 0.1);
   font-size: 1.1rem;
   transition: var(--transition);
-  opacity: 0;
-  transform: translateX(-20px);
 }
 
 .menu-list li:hover {
@@ -810,13 +663,11 @@ header.scrolled {
   background: rgba(255, 255, 255, 0.5);
   border-radius: 15px;
   transition: var(--transition);
-  opacity: 0;
-  transform: translateX(-30px);
 }
 
 .contact-item:hover {
   background: rgba(255, 255, 255, 0.8);
-  transform: translateX(-30px) scale(1.02);
+  transform: scale(1.02);
 }
 
 .contact-icon {
@@ -843,8 +694,6 @@ header.scrolled {
   font-size: 1.1rem;
   transition: var(--transition);
   box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
-  opacity: 0;
-  transform: translateY(30px);
 }
 
 .whatsapp-btn:hover {
@@ -858,8 +707,6 @@ header.scrolled {
   border-radius: 20px;
   overflow: hidden;
   box-shadow: var(--shadow);
-  opacity: 0;
-  transform: translateX(30px);
 }
 
 .map iframe {
@@ -882,17 +729,6 @@ header.scrolled {
   margin-top: 6rem;
   position: relative;
   overflow: hidden;
-}
-
-.footer::before {
-  content: '';
-  position: absolute;
-  top: -50px;
-  left: 0;
-  right: 0;
-  height: 100px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23FF69B4' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E") no-repeat;
-  background-size: cover;
 }
 
 .footer h3 {
@@ -922,7 +758,6 @@ header.scrolled {
   font-size: 1.5rem;
   cursor: pointer;
   box-shadow: var(--shadow);
-  display: none;
   z-index: 1000;
   transition: var(--transition);
   animation: pulse-scale 2s ease-in-out infinite;
@@ -931,16 +766,6 @@ header.scrolled {
 @keyframes pulse-scale {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }
-}
-
-.back-to-top.show {
-  display: block;
-  animation: slide-up 0.5s ease-out;
-}
-
-@keyframes slide-up {
-  from { transform: translateY(100px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
 }
 
 .back-to-top:hover {
@@ -954,14 +779,6 @@ header.scrolled {
   bottom: 2rem;
   left: 2rem;
   z-index: 1000;
-  opacity: 0;
-  animation: fade-in-bounce 1s ease-out 2s forwards;
-}
-
-@keyframes fade-in-bounce {
-  0% { opacity: 0; transform: translateY(50px) scale(0.5); }
-  70% { transform: translateY(-10px) scale(1.1); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .birthday-link img {
@@ -1016,30 +833,8 @@ header.scrolled {
  }
 }
 
-/* Sparkle Effects */
-.sparkle {
- position: absolute;
- font-size: 1.5rem;
- pointer-events: none;
- animation: sparkle-twinkle 2s ease-in-out infinite;
-}
-
-@keyframes sparkle-twinkle {
- 0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
- 50% { opacity: 1; transform: scale(1) rotate(180deg); }
-}
-
 /* Mobile Responsive Enhancements */
 @media (max-width: 768px) {
- .character {
-   width: 60px;
-   height: 60px;
- }
- 
- .character-3, .character-4 {
-   display: none;
- }
- 
  .nav-links {
    position: fixed;
    top: 0;
@@ -1104,9 +899,9 @@ header.scrolled {
    padding: 2.5rem 1.5rem;
  }
 
- .floating-shape {
-   width: 40px;
-   height: 40px;
+ .model-3d {
+   width: 150px;
+   height: 150px;
  }
 }
 
@@ -1132,46 +927,13 @@ header.scrolled {
    font-size: 2rem;
  }
 
- .character-1, .character-2 {
-   width: 50px;
-   height: 50px;
- }
-
  .name-reveal-text {
    font-size: 2rem;
  }
-}
 
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
- *, *::before, *::after {
-   animation-duration: 0.01ms !important;
-   animation-iteration-count: 1 !important;
-   transition-duration: 0.01ms !important;
- }
- 
- .floating-shape,
- .character,
- .particles,
- .sparkle {
-   animation: none !important;
- }
-}
-
-/* Print Styles */
-@media print {
- .cartoon-characters,
- .animated-bg,
- .particles,
- .back-to-top,
- .birthday-link,
- .mobile-toggle {
-   display: none !important;
- }
- 
- body {
-   background: white !important;
-   color: black !important;
+ .model-3d {
+   width: 120px;
+   height: 120px;
  }
 }
 
@@ -1204,1068 +966,908 @@ header.scrolled {
  100% { transform: rotate(360deg); }
 }
 
-.loading-overlay.hidden {
- opacity: 0;
- pointer-events: none;
+/* Alpine.js specific styles */
+[x-cloak] { display: none !important; }
+
+.fade-in {
+  animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+  animation: slideIn 0.8s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+/* 3D Model specific styles */
+.models-section {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.models-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 3rem;
+  margin-top: 3rem;
+}
+
+.model-card {
+ background: rgba(255, 255, 255, 0.95);
+ backdrop-filter: blur(15px);
+ padding: 2rem;
+ border-radius: 25px;
+ box-shadow: var(--shadow);
+ transition: var(--transition);
+ border: 2px solid rgba(255, 105, 180, 0.1);
+}
+
+.model-card:hover {
+ transform: translateY(-10px);
+ box-shadow: var(--shadow-hover);
+ border-color: var(--primary);
+}
+
+.model-card h4 {
+ color: var(--primary);
+ font-size: 1.3rem;
+ margin-top: 1rem;
+ font-weight: 600;
+}
+
+.model-controls {
+ display: flex;
+ justify-content: center;
+ gap: 1rem;
+ margin-top: 1rem;
+}
+
+.model-btn {
+ background: linear-gradient(135deg, var(--primary), var(--secondary));
+ color: var(--white);
+ border: none;
+ padding: 0.5rem 1rem;
+ border-radius: 15px;
+ cursor: pointer;
+ font-size: 0.9rem;
+ transition: var(--transition);
+}
+
+.model-btn:hover {
+ transform: translateY(-2px);
+ box-shadow: 0 5px 15px rgba(255, 105, 180, 0.3);
 }
 </style>
 </head>
 
-<body>
+<body x-data="birthdayApp()" x-cloak>
 <!-- Loading Overlay -->
-<div class="loading-overlay" id="loadingOverlay">
- <div class="loading-spinner"></div>
+<div class="loading-overlay" x-show="loading" x-transition>
+<div class="loading-spinner"></div>
 </div>
 
 <!-- Animated Background -->
 <div class="animated-bg">
- <div class="floating-shape shape-1"></div>
- <div class="floating-shape shape-2"></div>
- <div class="floating-shape shape-3"></div>
- <div class="floating-shape shape-4"></div>
+<div class="floating-shape shape-1"></div>
+<div class="floating-shape shape-2"></div>
+<div class="floating-shape shape-3"></div>
+<div class="floating-shape shape-4"></div>
 </div>
 
 <!-- Particles Container -->
-<div class="particles" id="particles"></div>
-
-<!-- Cartoon Characters -->
-<div class="cartoon-characters">
- <div class="character character-1" onclick="createSparkle(this)"></div>
- <div class="character character-2" onclick="createSparkle(this)"></div>
- <div class="character character-3" onclick="createSparkle(this)"></div>
- <div class="character character-4" onclick="createSparkle(this)"></div>
-</div>
+<div class="particles" x-ref="particles"></div>
 
 <!-- Header -->
-<header id="header">
- <div class="nav-container">
-   <a href="#home" class="logo" onclick="scrollTo('home')">
-     <i class="fas fa-birthday-cake"></i> Isha's Party
-   </a>
-   
-   <button class="mobile-toggle" onclick="toggleNav()" aria-label="Toggle navigation">
-     <i class="fas fa-bars"></i>
-   </button>
-   
-   <nav class="nav-links" id="navLinks">
-     <a href="#home" onclick="scrollTo('home')">Home</a>
-     <a href="#about" onclick="scrollTo('about')">About</a>
-     <a href="#schedule" onclick="scrollTo('schedule')">Schedule</a>
-     <a href="#menu" onclick="scrollTo('menu')">Menu</a>
-     <a href="#entertainment" onclick="scrollTo('entertainment')">Fun Zone</a>
-     <a href="#contact" onclick="scrollTo('contact')">Contact</a>
-   </nav>
- </div>
+<header 
+ :class="{ 'scrolled': scrolled }"
+ x-data="{ mobileMenuOpen: false }"
+ @scroll.window="scrolled = window.pageYOffset > 50"
+>
+<div class="nav-container">
+  <a href="#home" class="logo" @click="scrollToSection('home')" @click.prevent>
+    <i class="fas fa-birthday-cake"></i> Isha's Party
+  </a>
+  
+  <button 
+    class="mobile-toggle" 
+    @click="mobileMenuOpen = !mobileMenuOpen" 
+    aria-label="Toggle navigation"
+  >
+    <i :class="mobileMenuOpen ? 'fas fa-times' : 'fas fa-bars'"></i>
+  </button>
+  
+  <nav class="nav-links" :class="{ 'active': mobileMenuOpen }">
+    <template x-for="link in navLinks" :key="link.id">
+      <a 
+        :href="`#${link.id}`" 
+        x-text="link.text"
+        :class="{ 'active': activeSection === link.id }"
+        @click="scrollToSection(link.id); mobileMenuOpen = false"
+        @click.prevent
+      ></a>
+    </template>
+  </nav>
+</div>
 </header>
 
 <!-- Hero Section -->
-<section id="home" class="hero">
- <div class="hero-content">
-   <h1 class="hero-title" id="heroTitle">Isha's Magical 1st Birthday!</h1>
-   <p class="hero-subtitle" id="heroSubtitle">Join us for a fun-filled Birthday celebration with music, dancing, and unforgettable memories</p>
-   
-   <div class="name-reveal" id="nameReveal">
-     <div class="name-reveal-text">🎉 A Special Day for the Wonderful Isha! 🎉</div>
-   </div>
-   
-   <div class="event-info" id="eventInfo">
-     <div class="event-date">📅 May 29th, 2025</div>
-     <div class="event-time">🕕 Party starts at 6:00 PM</div>
-     <div class="event-venue">📍 Panjagutta, Officers Colony</div>
-     
-     <div class="countdown" id="countdown">
-       <div class="countdown-item">
-         <span class="countdown-number" id="days">00</span>
-         <span class="countdown-label">Days</span>
+<section id="home" class="hero" x-intersect="activeSection = 'home'">
+<div class="hero-content">
+  <h1 class="hero-title" x-show="!loading" x-transition.delay.500ms>Isha's Magical 1st Birthday!</h1>
+  <p class="hero-subtitle" x-show="!loading" x-transition.delay.700ms>Join us for a fun-filled Birthday celebration with music, dancing, and unforgettable memories</p>
+  
+  <div class="name-reveal" x-show="!loading" x-transition.delay.1000ms>
+    <div class="name-reveal-text">🎉 A Special Day for the Wonderful Isha! 🎉</div>
+  </div>
+  
+  <div class="event-info" x-show="!loading" x-transition.delay.1200ms>
+    <div class="event-date">📅 May 29th, 2025</div>
+    <div class="event-time">🕕 Party starts at 6:00 PM</div>
+    <div class="event-venue">📍 Panjagutta, Officers Colony</div>
+    
+    <div class="countdown">
+      <div class="countdown-item" x-transition>
+        <span class="countdown-number" x-text="countdown.days.toString().padStart(2, '0')"></span>
+        <span class="countdown-label">Days</span>
+      </div>
+      <div class="countdown-item" x-transition>
+        <span class="countdown-number" x-text="countdown.hours.toString().padStart(2, '0')"></span>
+        <span class="countdown-label">Hours</span>
+      </div>
+      <div class="countdown-item" x-transition>
+        <span class="countdown-number" x-text="countdown.minutes.toString().padStart(2, '0')"></span>
+        <span class="countdown-label">Minutes</span>
+      </div>
+      <div class="countdown-item" x-transition>
+        <span class="countdown-number" x-text="countdown.seconds.toString().padStart(2, '0')"></span>
+        <span class="countdown-label">Seconds</span>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- 3D Models Section -->
+<section class="models-section" x-intersect="activeSection = 'models'">
+ <h2 class="section-title">3D Birthday Magic ✨</h2>
+ <div class="content-card">
+   <div class="models-grid">
+     <!-- Birthday Cake 3D Model -->
+     <div class="model-card">
+       <div class="model-3d" x-ref="cakeModel">
+         <div class="model-placeholder">
+           <i class="fas fa-birthday-cake"></i>
+           <div>Interactive Birthday Cake</div>
+           <small>Click to spin!</small>
+         </div>
        </div>
-       <div class="countdown-item">
-         <span class="countdown-number" id="hours">00</span>
-         <span class="countdown-label">Hours</span>
-       </div>
-       <div class="countdown-item">
-         <span class="countdown-number" id="minutes">00</span>
-         <span class="countdown-label">Minutes</span>
-       </div>
-       <div class="countdown-item">
-         <span class="countdown-number" id="seconds">00</span>
-         <span class="countdown-label">Seconds</span>
+       <h4>Magical Birthday Cake</h4>
+       <div class="model-controls">
+         <button class="model-btn" @click="toggleCakeAnimation()">
+           <span x-text="cakeAnimating ? 'Stop' : 'Spin'"></span>
+         </button>
+         <button class="model-btn" @click="resetCakePosition()">Reset</button>
        </div>
      </div>
+
+     <!-- Birthday Balloons 3D Model -->
+     <div class="model-card">
+       <div class="model-3d" x-ref="balloonsModel">
+         <div class="model-placeholder">
+           <i class="fas fa-heart"></i>
+           <div>Floating Balloons</div>
+           <small>Watch them float!</small>
+         </div>
+       </div>
+       <h4>Party Balloons</h4>
+       <div class="model-controls">
+         <button class="model-btn" @click="toggleBalloonsAnimation()">
+           <span x-text="balloonsAnimating ? 'Stop' : 'Float'"></span>
+         </button>
+         <button class="model-btn" @click="changeBalloonsColor()">Change Color</button>
+       </div>
+     </div>
+   </div>
+   
+   <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.8); border-radius: 15px;">
+     <p><strong>🎨 3D Models Information:</strong></p>
+     <p>Interactive 3D birthday elements to make the celebration even more magical! Use the controls to interact with the models.</p>
    </div>
  </div>
 </section>
 
 <!-- About Section -->
-<section id="about" class="section">
- <h2 class="section-title">Our Little Star ⭐</h2>
- <div class="content-card">
-   <div class="about-content">
-     <div class="about-text">
-       <p>This past year has been an incredible journey of first smiles, first giggles, and so much love. Isha has filled our lives with more joy than we could have ever imagined!</p>
-       <p>Join us for a fantastic celebration filled with music, dancing, delicious food, and loads of fun activities for everyone. Get ready to boogie and celebrate this special milestone with our little star!</p>
-       <div class="theme-badge">Theme: Isha's Birthday Party!</div>
-     </div>
-     <div class="about-image">
-       <img src="image/1000101072-Photoroom.png" alt="Birthday Girl Isha" loading="lazy">
-     </div>
-   </div>
- </div>
+<section id="about" class="section" x-intersect="activeSection = 'about'">
+<h2 class="section-title" x-intersect="$el.classList.add('fade-in')">Our Little Star ⭐</h2>
+<div class="content-card" x-intersect="$el.classList.add('fade-in')">
+  <div class="about-content">
+    <div class="about-text">
+      <p>This past year has been an incredible journey of first smiles, first giggles, and so much love. Isha has filled our lives with more joy than we could have ever imagined!</p>
+      <p>Join us for a fantastic celebration filled with music, dancing, delicious food, and loads of fun activities for everyone. Get ready to boogie and celebrate this special milestone with our little star!</p>
+      <div class="theme-badge">Theme: Isha's Birthday Party!</div>
+    </div>
+    <div class="about-image">
+      <img src="image/1000101072-Photoroom.png" alt="Birthday Girl Isha" loading="lazy">
+    </div>
+  </div>
+</div>
 </section>
 
 <!-- Schedule Section -->
-<section id="schedule" class="section">
- <h2 class="section-title">Party Timeline 🎉</h2>
- <div class="content-card">
-   <div class="grid grid-3">
-     <div class="card schedule-card">
-       <div class="schedule-time">6:00 PM</div>
-       <h3><i class="fas fa-door-open"></i> Welcome Party</h3>
-       <p>Guests arrive and get ready to party!</p>
-     </div>
-     <div class="card schedule-card">
-       <div class="schedule-time">6:15 PM</div>
-       <h3><i class="fas fa-star"></i> Birthday Star Arrival</h3>
-       <p>Grand entrance with music and celebration!</p>
-     </div>
-     <div class="card schedule-card">
-       <div class="schedule-time">6:30 PM</div>
-       <h3><i class="fas fa-magic"></i> Magic Show</h3>
-       <p>Amazing tricks and illusions for everyone!</p>
-     </div>
-     <div class="card schedule-card">
-       <div class="schedule-time">7:00 PM</div>
-       <h3><i class="fas fa-music"></i> Kids Dance Party</h3>
-       <p>Time to show off those dance moves!</p>
-     </div>
-     <div class="card schedule-card">
-       <div class="schedule-time">7:30 PM</div>
-       <h3><i class="fas fa-microphone"></i> Singing Fun</h3>
-       <p>Karaoke time for our little performers!</p>
-     </div>
-     <div class="card schedule-card">
-       <div class="schedule-time">8:00 PM</div>
-       <h3><i class="fas fa-gift"></i> Gift Time</h3>
-       <p>Special moment for presents and wishes!</p>
-     </div>
-     <div class="card schedule-card">
-       <div class="schedule-time">8:30 PM</div>
-       <h3><i class="fas fa-utensils"></i> Dinner Time</h3>
-       <p>Delicious food for everyone to enjoy!</p>
-     </div>
-     <div class="card schedule-card">
-       <div class="schedule-time">9:00 PM</div>
-       <h3><i class="fas fa-birthday-cake"></i> Cake Cutting</h3>
-       <p>The sweet highlight of the evening!</p>
-     </div>
-     <div class="card schedule-card">
-       <div class="schedule-time">9:30 PM</div>
-       <h3><i class="fas fa-cocktail"></i> Adult Social Hour</h3>
-       <p>Relaxing time for parents and adults!</p>
-     </div>
-   </div>
- </div>
+<section id="schedule" class="section" x-intersect="activeSection = 'schedule'">
+<h2 class="section-title" x-intersect="$el.classList.add('fade-in')">Party Timeline 🎉</h2>
+<div class="content-card" x-intersect="$el.classList.add('fade-in')">
+  <div class="grid grid-3">
+    <template x-for="(event, index) in scheduleEvents" :key="index">
+      <div 
+        class="card schedule-card" 
+        x-intersect="$el.classList.add('fade-in')"
+        :style="`animation-delay: ${index * 0.1}s`"
+      >
+        <div class="schedule-time" x-text="event.time"></div>
+        <h3>
+          <i :class="event.icon"></i> 
+          <span x-text="event.title"></span>
+        </h3>
+        <p x-text="event.description"></p>
+      </div>
+    </template>
+  </div>
+</div>
 </section>
 
 <!-- Menu Section -->
-<section id="menu" class="section">
- <h2 class="section-title">Delicious Treats 🍴</h2>
- <div class="content-card">
-   <div class="grid grid-3">
-     <div class="card" onclick="openModal('main-course')">
-       <div class="card-icon"><i class="fas fa-drumstick-bite"></i></div>
-       <h3>Main Course</h3>
-       <p>Click to see our hearty main dishes</p>
-     </div>
-     <div class="card" onclick="openModal('starters')">
-       <div class="card-icon"><i class="fas fa-utensils"></i></div>
-       <h3>Starters</h3>
-       <p>Delicious appetizers to start the party</p>
-     </div>
-     <div class="card" onclick="openModal('desserts')">
-       <div class="card-icon"><i class="fas fa-ice-cream"></i></div>
-       <h3>Desserts & Drinks</h3>
-       <p>Sweet treats and refreshing beverages</p>
-     </div>
-   </div>
- </div>
+<section id="menu" class="section" x-intersect="activeSection = 'menu'">
+<h2 class="section-title" x-intersect="$el.classList.add('fade-in')">Delicious Treats 🍴</h2>
+<div class="content-card" x-intersect="$el.classList.add('fade-in')">
+  <div class="grid grid-3">
+    <template x-for="(menuCategory, index) in menuCategories" :key="index">
+      <div 
+        class="card" 
+        @click="openModal(menuCategory.id)"
+        x-intersect="$el.classList.add('fade-in')"
+        :style="`animation-delay: ${index * 0.2}s`"
+      >
+        <div class="card-icon">
+          <i :class="menuCategory.icon"></i>
+        </div>
+        <h3 x-text="menuCategory.title"></h3>
+        <p x-text="menuCategory.description"></p>
+      </div>
+    </template>
+  </div>
+</div>
 </section>
 
 <!-- Entertainment Section -->
-<section id="entertainment" class="section">
- <h2 class="section-title">Fun Activities 🎪</h2>
- <div class="content-card">
-   <div class="grid grid-2">
-     <div class="card">
-       <div class="card-icon"><i class="fas fa-child"></i></div>
-       <h3>Kids Zone</h3>
-       <p>Magic shows, dance competitions, and singing contests for our little guests</p>
-     </div>
-     <div class="card">
-       <div class="card-icon"><i class="fas fa-cocktail"></i></div>
-       <h3>Adult Lounge</h3>
-       <p>Karaoke, music, and refreshments for parents and adult guests</p>
-     </div>
-     <div class="card">
-       <div class="card-icon"><i class="fas fa-music"></i></div>
-       <h3>Dance Floor</h3>
-       <p>Disco lights and great music for everyone to dance the night away</p>
-     </div>
-     <div class="card">
-       <div class="card-icon"><i class="fas fa-trophy"></i></div>
-       <h3>Prize Corner</h3>
-       <p>Amazing prizes for competition winners and return gifts for all kids</p>
-     </div>
-   </div>
- </div>
+<section id="entertainment" class="section" x-intersect="activeSection = 'entertainment'">
+<h2 class="section-title" x-intersect="$el.classList.add('fade-in')">Fun Activities 🎪</h2>
+<div class="content-card" x-intersect="$el.classList.add('fade-in')">
+  <div class="grid grid-2">
+    <template x-for="(activity, index) in activities" :key="index">
+      <div 
+        class="card"
+        x-intersect="$el.classList.add('fade-in')"
+        :style="`animation-delay: ${index * 0.15}s`"
+      >
+        <div class="card-icon">
+          <i :class="activity.icon"></i>
+        </div>
+        <h3 x-text="activity.title"></h3>
+        <p x-text="activity.description"></p>
+      </div>
+    </template>
+  </div>
+</div>
 </section>
 
 <!-- Contact Section -->
-<section id="contact" class="section">
- <h2 class="section-title">Get In Touch 📞</h2>
- <div class="content-card">
-   <div class="contact-grid">
-     <div>
-       <div class="contact-item">
-         <div class="contact-icon"><i class="fas fa-phone-alt"></i></div>
-         <div>
-           <h4>Phone</h4>
-           <a href="tel:+919985238521">+91 9985238521</a>
-         </div>
-       </div>
-       <div class="contact-item">
-         <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
-         <div>
-           <h4>Party Venue</h4>
-           <p>Panjagutta, Officers Colony</p>
-         </div>
-       </div>
-       <a href="https://wa.me/9985238521" target="_blank" class="whatsapp-btn">
-         <i class="fab fa-whatsapp"></i> Contact Us on WhatsApp
-       </a>
-     </div>
-     <div class="map">
-       <iframe 
-         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.562!2d78.44!3d17.42!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb90cbed9b8c07%3A0x77ca7d2e98a7c1b9!2sPanjagutta%2C%20Hyderabad%2C%20Telangana%2C%20India!5e0!3m2!1sen!2sus!4v1716584347856!5m2!1sen!2sus"
-         allowfullscreen="" 
-         loading="lazy" 
-         referrerpolicy="no-referrer-when-downgrade">
-       </iframe>
-     </div>
-   </div>
- </div>
+<section id="contact" class="section" x-intersect="activeSection = 'contact'">
+<h2 class="section-title" x-intersect="$el.classList.add('fade-in')">Get In Touch 📞</h2>
+<div class="content-card" x-intersect="$el.classList.add('fade-in')">
+  <div class="contact-grid">
+    <div>
+      <template x-for="(contact, index) in contactInfo" :key="index">
+        <div 
+          class="contact-item"
+          x-intersect="$el.classList.add('fade-in')"
+          :style="`animation-delay: ${index * 0.2}s`"
+        >
+          <div class="contact-icon">
+            <i :class="contact.icon"></i>
+          </div>
+          <div>
+            <h4 x-text="contact.title"></h4>
+            <template x-if="contact.link">
+              <a :href="contact.link" x-text="contact.value"></a>
+            </template>
+            <template x-if="!contact.link">
+              <p x-text="contact.value"></p>
+            </template>
+          </div>
+        </div>
+      </template>
+      <a 
+        href="https://wa.me/9985238521" 
+        target="_blank" 
+        class="whatsapp-btn"
+        x-intersect="$el.classList.add('fade-in')"
+      >
+        <i class="fab fa-whatsapp"></i> Contact Us on WhatsApp
+      </a>
+    </div>
+    <div class="map" x-intersect="$el.classList.add('fade-in')">
+      <iframe 
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.562!2d78.44!3d17.42!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb90cbed9b8c07%3A0x77ca7d2e98a7c1b9!2sPanjagutta%2C%20Hyderabad%2C%20Telangana%2C%20India!5e0!3m2!1sen!2sus!4v1716584347856!5m2!1sen!2sus"
+        allowfullscreen="" 
+        loading="lazy" 
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </div>
+</div>
 </section>
 
 <!-- Footer -->
 <footer class="footer">
- <h3><i class="fas fa-birthday-cake"></i> Isha's 1st Birthday</h3>
- <p>Thank you for being part of Isha's magical journey. Your presence makes this celebration even more special!</p>
- <p>&copy; 2025 Isha's Birthday Celebration. Made with ❤️ by Isha's Family</p>
+<h3><i class="fas fa-birthday-cake"></i> Isha's 1st Birthday</h3>
+<p>Thank you for being part of Isha's magical journey. Your presence makes this celebration even more special!</p>
+<p>&copy; 2025 Isha's Birthday Celebration. Made with ❤️ by Isha's Family</p>
 </footer>
 
 <!-- Back to Top Button -->
-<button class="back-to-top" id="backToTop" onclick="scrollToTop()">
- <i class="fas fa-arrow-up"></i>
+<button 
+ class="back-to-top" 
+ x-show="scrolled" 
+ x-transition
+ @click="scrollToTop()"
+>
+<i class="fas fa-arrow-up"></i>
 </button>
 
 <!-- Birthday Link -->
 <div class="birthday-link">
- <a href="https://vanshi-code.github.io/Birthday/" target="_blank" rel="noopener">
-   <img src="image/happy-birthday.png" alt="Isha's Birthday" loading="lazy">
- </a>
+<a href="https://vanshi-code.github.io/Birthday/" target="_blank" rel="noopener">
+  <img src="image/happy-birthday.png" alt="Isha's Birthday" loading="lazy">
+</a>
 </div>
 
 <!-- Menu Modals -->
-<div id="main-course" class="modal">
- <div class="modal-content">
-   <button class="close" onclick="closeModal('main-course')">&times;</button>
-   <h3>Main Course</h3>
-   <ul class="menu-list">
-     <li>Chicken Fry - Crispy and succulent golden fried chicken pieces</li>
-     <li>Mutton Biryani - Aromatic and flavorful layered rice with tender mutton</li>
-     <li>Dal Fry - Comforting lentil delicacy with aromatic spices</li>
-     <li>Paneer Butter Masala - Creamy cottage cheese curry in rich tomato gravy</li>
-     <li>Roti / Naan - Freshly baked trIshaonal Indian breads</li>
-     <li>Jeera Rice - Fragrant basmati rice tempered with cumin seeds</li>
-   </ul>
+<template x-for="category in menuCategories" :key="category.id">
+ <div 
+   class="modal" 
+   x-show="activeModal === category.id" 
+   x-transition.opacity
+   @click.self="closeModal()"
+ >
+   <div class="modal-content" x-transition.scale.80>
+     <button class="close" @click="closeModal()">&times;</button>
+     <h3 x-text="category.title"></h3>
+     <ul class="menu-list">
+       <template x-for="item in category.items" :key="item">
+         <li x-text="item" x-transition.delay.100ms></li>
+       </template>
+     </ul>
+   </div>
  </div>
-</div>
-
-<div id="starters" class="modal">
- <div class="modal-content">
-   <button class="close" onclick="closeModal('starters')">&times;</button>
-   <h3>Starters</h3>
-   <ul class="menu-list">
-     <li>Veg Spring Rolls - Crispy vegetable-filled rolls with dipping sauce</li>
-     <li>Chicken 65 - Spicy and tangy deep-fried chicken bites</li>
-     <li>French Fries - Golden crispy potato fries with seasoning</li>
-   </ul>
- </div>
-</div>
-
-<div id="desserts" class="modal">
- <div class="modal-content">
-   <button class="close" onclick="closeModal('desserts')">&times;</button>
-   <h3>Desserts & Drinks</h3>
-   <ul class="menu-list">
-     <li>Ice Cream - Vanilla, Chocolate, and Mango flavors</li>
-     <li>Chocolate Fountain - Rich flowing chocolate with fruit and cake dippers</li>
-     <li>Mocktails - Refreshing and colorful non-alcoholic beverages</li>
-     <li>Alcoholic Bar - Selection of beers, wines, and cocktails for adults</li>
-     <li>Fresh Juices & Water - To keep everyone hydrated</li>
-   </ul>
- </div>
-</div>
+</template>
 
 <script>
-// Enhanced JavaScript with GSAP Animations
-document.addEventListener('DOMContentLoaded', function() {
- // Initialize GSAP
- gsap.registerPlugin(ScrollTrigger);
- 
- // Hide loading overlay
- setTimeout(() => {
-   document.getElementById('loadingOverlay').classList.add('hidden');
-   initAnimations();
- }, 1500);
- 
- // Initialize all animations
- function initAnimations() {
-   // Hero animations
-   gsap.timeline()
-     .to("#heroTitle", {
-       duration: 1.2,
-       opacity: 1,
-       y: 0,
-       ease: "power3.out"
-     })
-     .to("#heroSubtitle", {
-       duration: 1,
-       opacity: 1,
-       y: 0,
-       ease: "power2.out"
-     }, "-=0.8")
-     .to("#nameReveal", {
-       duration: 0.8,
-       opacity: 1,
-       scale: 1,
-       ease: "back.out(1.7)"
-     }, "-=0.5")
-     .to("#eventInfo", {
-       duration: 1,
-       opacity: 1,
-       y: 0,
-       ease: "power2.out"
-     }, "-=0.6");
+// Alpine.js Birthday App
+function birthdayApp() {
+ return {
+   // State
+   loading: true,
+   scrolled: false,
+   activeSection: 'home',
+   activeModal: null,
+   countdown: {
+     days: 0,
+     hours: 0,
+     minutes: 0,
+     seconds: 0
+   },
    
-   // Section title animations
-   gsap.utils.toArray('.section-title').forEach(title => {
-     gsap.fromTo(title, 
-       { opacity: 0, y: 50 },
-       {
-         opacity: 1,
-         y: 0,
-         duration: 1,
-         ease: "power3.out",
-         scrollTrigger: {
-           trigger: title,
-           start: "top 80%",
-           toggleActions: "play none none none"
-         }
-       }
-     );
-   });
+   // 3D Model states
+   cakeAnimating: false,
+   balloonsAnimating: false,
+   cakeModel: null,
+   balloonsModel: null,
    
-   // Content cards animations
-   gsap.utils.toArray('.content-card').forEach(card => {
-     gsap.fromTo(card,
-       { opacity: 0, y: 50 },
-       {
-         opacity: 1,
-         y: 0,
-         duration: 1,
-         ease: "power3.out",
-         scrollTrigger: {
-           trigger: card,
-           start: "top 85%",
-           toggleActions: "play none none none"
-         }
-       }
-     );
-   });
+   // Navigation
+   navLinks: [
+     { id: 'home', text: 'Home' },
+     { id: 'about', text: 'About' },
+     { id: 'schedule', text: 'Schedule' },
+     { id: 'menu', text: 'Menu' },
+     { id: 'entertainment', text: 'Fun Zone' },
+     { id: 'contact', text: 'Contact' }
+   ],
    
-   // Schedule cards stagger animation
-   gsap.utils.toArray('#schedule .card').forEach((card, i) => {
-     gsap.fromTo(card,
-       { opacity: 0, y: 50, scale: 0.9 },
-       {
-         opacity: 1,
-         y: 0,
-         scale: 1,
-         duration: 0.8,
-         delay: i * 0.1,
-         ease: "back.out(1.7)",
-         scrollTrigger: {
-           trigger: card,
-           start: "top 90%",
-           toggleActions: "play none none none"
-         }
-       }
-     );
-   });
+   // Schedule Events
+   scheduleEvents: [
+     { time: '6:00 PM', title: 'Welcome Party', description: 'Guests arrive and get ready to party!', icon: 'fas fa-door-open' },
+     { time: '6:15 PM', title: 'Birthday Star Arrival', description: 'Grand entrance with music and celebration!', icon: 'fas fa-star' },
+     { time: '6:30 PM', title: 'Magic Show', description: 'Amazing tricks and illusions for everyone!', icon: 'fas fa-magic' },
+     { time: '7:00 PM', title: 'Kids Dance Party', description: 'Time to show off those dance moves!', icon: 'fas fa-music' },
+     { time: '7:30 PM', title: 'Singing Fun', description: 'Karaoke time for our little performers!', icon: 'fas fa-microphone' },
+     { time: '8:00 PM', title: 'Gift Time', description: 'Special moment for presents and wishes!', icon: 'fas fa-gift' },
+     { time: '8:30 PM', title: 'Dinner Time', description: 'Delicious food for everyone to enjoy!', icon: 'fas fa-utensils' },
+     { time: '9:00 PM', title: 'Cake Cutting', description: 'The sweet highlight of the evening!', icon: 'fas fa-birthday-cake' },
+     { time: '9:30 PM', title: 'Adult Social Hour', description: 'Relaxing time for parents and adults!', icon: 'fas fa-cocktail' }
+   ],
    
-   // Menu cards animation
-   gsap.utils.toArray('#menu .card').forEach((card, i) => {
-     gsap.fromTo(card,
-       { opacity: 0, x: i % 2 === 0 ? -50 : 50, rotationY: 45 },
-       {
-         opacity: 1,
-         x: 0,
-         rotationY: 0,
-         duration: 1,
-         delay: i * 0.2,
-         ease: "power3.out",
-         scrollTrigger: {
-           trigger: card,
-           start: "top 85%",
-           toggleActions: "play none none none"
-         }
-       }
-     );
-   });
-   
-   // Entertainment cards animation
-   gsap.utils.toArray('#entertainment .card').forEach((card, i) => {
-     gsap.fromTo(card,
-       { opacity: 0, scale: 0.8, rotation: 10 },
-       {
-         opacity: 1,
-         scale: 1,
-         rotation: 0,
-         duration: 1,
-         delay: i * 0.15,
-         ease: "elastic.out(1, 0.75)",
-         scrollTrigger: {
-           trigger: card,
-           start: "top 85%",
-           toggleActions: "play none none none"
-         }
-       }
-     );
-   });
-   
-   // About section animations
-   gsap.fromTo(".about-text",
-     { opacity: 0, x: -50 },
+   // Menu Categories
+   menuCategories: [
      {
-       opacity: 1,
-       x: 0,
-       duration: 1.2,
-       ease: "power3.out",
-       scrollTrigger: {
-         trigger: ".about-text",
-         start: "top 80%",
-         toggleActions: "play none none none"
-       }
-     }
-   );
-   
-   gsap.fromTo(".about-image",
-     { opacity: 0, x: 50, scale: 0.9 },
+       id: 'main-course',
+       title: 'Main Course',
+       description: 'Click to see our hearty main dishes',
+       icon: 'fas fa-drumstick-bite',
+       items: [
+         'Chicken Fry - Crispy and succulent golden fried chicken pieces',
+         'Mutton Biryani - Aromatic and flavorful layered rice with tender mutton',
+         'Dal Fry - Comforting lentil delicacy with aromatic spices',
+         'Paneer Butter Masala - Creamy cottage cheese curry in rich tomato gravy',
+         'Roti / Naan - Freshly baked traditional Indian breads',
+         'Jeera Rice - Fragrant basmati rice tempered with cumin seeds'
+       ]
+     },
      {
-       opacity: 1,
-       x: 0,
-       scale: 1,
-       duration: 1.2,
-       ease: "power3.out",
-       scrollTrigger: {
-         trigger: ".about-image",
-         start: "top 80%",
-         toggleActions: "play none none none"
-       }
-     }
-   );
-   
-   // Contact animations
-   gsap.utils.toArray('.contact-item').forEach((item, i) => {
-     gsap.fromTo(item,
-       { opacity: 0, x: -30 },
-       {
-         opacity: 1,
-         x: 0,
-         duration: 0.8,
-         delay: i * 0.2,
-         ease: "power2.out",
-         scrollTrigger: {
-           trigger: item,
-           start: "top 85%",
-           toggleActions: "play none none none"
-         }
-       }
-     );
-   });
-   
-   gsap.fromTo(".whatsapp-btn",
-     { opacity: 0, y: 30 },
+       id: 'starters',
+       title: 'Starters',
+       description: 'Delicious appetizers to start the party',
+       icon: 'fas fa-utensils',
+       items: [
+         'Veg Spring Rolls - Crispy vegetable-filled rolls with dipping sauce',
+         'Chicken 65 - Spicy and tangy deep-fried chicken bites',
+         'French Fries - Golden crispy potato fries with seasoning'
+       ]
+     },
      {
-       opacity: 1,
-       y: 0,
-       duration: 1,
-       ease: "bounce.out",
-       scrollTrigger: {
-         trigger: ".whatsapp-btn",
-         start: "top 85%",
-         toggleActions: "play none none none"
-       }
+       id: 'desserts',
+       title: 'Desserts & Drinks',
+       description: 'Sweet treats and refreshing beverages',
+       icon: 'fas fa-ice-cream',
+       items: [
+         'Ice Cream - Vanilla, Chocolate, and Mango flavors',
+         'Chocolate Fountain - Rich flowing chocolate with fruit and cake dippers',
+         'Mocktails - Refreshing and colorful non-alcoholic beverages',
+         'Alcoholic Bar - Selection of beers, wines, and cocktails for adults',
+         'Fresh Juices & Water - To keep everyone hydrated'
+       ]
      }
-   );
+   ],
    
-   gsap.fromTo(".map",
-     { opacity: 0, x: 30, scale: 0.95 },
+   // Activities
+   activities: [
      {
-       opacity: 1,
-       x: 0,
-       scale: 1,
-       duration: 1.2,
-       ease: "power3.out",
-       scrollTrigger: {
-         trigger: ".map",
-         start: "top 85%",
-         toggleActions: "play none none none"
-       }
+       title: 'Kids Zone',
+       description: 'Magic shows, dance competitions, and singing contests for our little guests',
+       icon: 'fas fa-child'
+     },
+     {
+       title: 'Adult Lounge',
+       description: 'Karaoke, music, and refreshments for parents and adult guests',
+       icon: 'fas fa-cocktail'
+     },
+     {
+       title: 'Dance Floor',
+       description: 'Disco lights and great music for everyone to dance the night away',
+       icon: 'fas fa-music'
+     },
+     {
+       title: 'Prize Corner',
+       description: 'Amazing prizes for competition winners and return gifts for all kids',
+       icon: 'fas fa-trophy'
      }
-   );
- }
- 
- // Particle system
- function createParticles() {
-   const particlesContainer = document.getElementById('particles');
+   ],
    
-   function createParticle() {
-     const particle = document.createElement('div');
-     particle.classList.add('particle');
-     particle.style.left = Math.random() * 100 + '%';
-     particle.style.backgroundColor = Math.random() > 0.5 ? 'var(--primary)' : 'var(--secondary)';
-     particle.style.animationDuration = (Math.random() * 3 + 5) + 's';
-     particle.style.animationDelay = Math.random() * 2 + 's';
+   // Contact Information
+   contactInfo: [
+     {
+       title: 'Phone',
+       value: '+91 9985238521',
+       icon: 'fas fa-phone-alt',
+       link: 'tel:+919985238521'
+     },
+     {
+       title: 'Party Venue',
+       value: 'Panjagutta, Officers Colony',
+       icon: 'fas fa-map-marker-alt',
+       link: null
+     }
+   ],
+   
+   // Initialization
+   init() {
+     // Hide loading after 1.5 seconds
+     setTimeout(() => {
+       this.loading = false;
+     }, 1500);
      
-     particlesContainer.appendChild(particle);
+     // Initialize countdown
+     this.updateCountdown();
+     setInterval(() => this.updateCountdown(), 1000);
+     
+     // Initialize particles
+     this.createParticles();
+     
+     // Initialize 3D models
+     this.$nextTick(() => {
+       this.init3DModels();
+     });
+   },
+   
+   // Countdown functionality
+   updateCountdown() {
+     const eventDate = new Date('2025-05-29T18:00:00').getTime();
+     const now = new Date().getTime();
+     const distance = eventDate - now;
+
+     if (distance < 0) {
+       this.countdown = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+       this.createConfetti();
+       return;
+     }
+
+     this.countdown.days = Math.floor(distance / (1000 * 60 * 60 * 24));
+     this.countdown.hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+     this.countdown.minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+     this.countdown.seconds = Math.floor((distance % (1000 * 60)) / 1000);
+   },
+   
+   // Navigation
+   scrollToSection(sectionId) {
+     const element = document.getElementById(sectionId);
+     if (element) {
+       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+     }
+   },
+   
+   scrollToTop() {
+     window.scrollTo({ top: 0, behavior: 'smooth' });
+   },
+   
+   // Modal functionality
+   openModal(modalId) {
+     this.activeModal = modalId;
+     document.body.style.overflow = 'hidden';
+   },
+   
+   closeModal() {
+     this.activeModal = null;
+     document.body.style.overflow = '';
+   },
+   
+   // 3D Models functionality
+   init3DModels() {
+     this.initCakeModel();
+     this.initBalloonsModel();
+   },
+   
+   initCakeModel() {
+     // Placeholder for 3D birthday cake model
+     // In real implementation, you would load a .glb/.gltf file here
+     const container = this.$refs.cakeModel;
+     if (!container) return;
+     
+     // Create a basic 3D scene with Three.js
+     const scene = new THREE.Scene();
+     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+     
+     renderer.setSize(200, 200);
+     renderer.setClearColor(0x000000, 0);
+     container.innerHTML = '';
+     container.appendChild(renderer.domElement);
+     
+     // Create a simple cake-like geometry as placeholder
+     const geometry = new THREE.CylinderGeometry(0.8, 1, 1.5, 16);
+     const material = new THREE.MeshPhongMaterial({ 
+       color: 0xff69b4,
+       shininess: 100 
+     });
+     const cake = new THREE.Mesh(geometry, material);
+     scene.add(cake);
+     
+     // Add candles
+     const candleGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.3, 8);
+     const candleMaterial = new THREE.MeshPhongMaterial({ color: 0xffff00 });
+     
+     for (let i = 0; i < 5; i++) {
+       const candle = new THREE.Mesh(candleGeometry, candleMaterial);
+       const angle = (i / 5) * Math.PI * 2;
+       candle.position.x = Math.cos(angle) * 0.5;
+       candle.position.z = Math.sin(angle) * 0.5;
+       candle.position.y = 0.9;
+       scene.add(candle);
+     }
+     
+     // Add lighting
+     const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+     scene.add(ambientLight);
+     
+     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+     directionalLight.position.set(1, 1, 1);
+     scene.add(directionalLight);
+     
+     camera.position.z = 3;
+     camera.position.y = 1;
+     
+     this.cakeModel = { scene, camera, renderer, cake };
+     
+     // Animation loop
+     const animate = () => {
+       requestAnimationFrame(animate);
+       
+       if (this.cakeAnimating) {
+         cake.rotation.y += 0.02;
+       }
+       
+       renderer.render(scene, camera);
+     };
+     animate();
+   },
+   
+   initBalloonsModel() {
+     // Placeholder for 3D balloons model
+     const container = this.$refs.balloonsModel;
+     if (!container) return;
+     
+     const scene = new THREE.Scene();
+     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+     
+     renderer.setSize(200, 200);
+     renderer.setClearColor(0x000000, 0);
+     container.innerHTML = '';
+     container.appendChild(renderer.domElement);
+     
+     // Create balloon-like spheres
+     const balloons = [];
+     const colors = [0xff69b4, 0xda70d6, 0xffb6c1, 0x87ceeb, 0x98fb98];
+     
+     for (let i = 0; i < 5; i++) {
+       const geometry = new THREE.SphereGeometry(0.3, 16, 16);
+       const material = new THREE.MeshPhongMaterial({ 
+         color: colors[i],
+         shininess: 100 
+       });
+       const balloon = new THREE.Mesh(geometry, material);
+       
+       balloon.position.x = (i - 2) * 0.4;
+       balloon.position.y = Math.sin(i) * 0.3;
+       balloon.position.z = 0;
+       
+       scene.add(balloon);
+       balloons.push(balloon);
+       
+       // Add string
+       const stringGeometry = new THREE.CylinderGeometry(0.01, 0.01, 1, 4);
+       const stringMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
+       const string = new THREE.Mesh(stringGeometry, stringMaterial);
+       string.position.copy(balloon.position);
+       string.position.y -= 0.8;
+       scene.add(string);
+     }
+     
+     // Add lighting
+     const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+     scene.add(ambientLight);
+     
+     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+     directionalLight.position.set(1, 1, 1);
+     scene.add(directionalLight);
+     
+     camera.position.z = 3;
+     
+     this.balloonsModel = { scene, camera, renderer, balloons };
+     
+     // Animation loop
+     let time = 0;
+     const animate = () => {
+       requestAnimationFrame(animate);
+       time += 0.01;
+       
+       if (this.balloonsAnimating) {
+         balloons.forEach((balloon, index) => {
+           balloon.position.y = Math.sin(time + index) * 0.2;
+         });
+       }
+       
+       renderer.render(scene, camera);
+     };
+     animate();
+   },
+   
+   // 3D Model controls
+   toggleCakeAnimation() {
+     this.cakeAnimating = !this.cakeAnimating;
+   },
+   
+   resetCakePosition() {
+     if (this.cakeModel) {
+       this.cakeModel.cake.rotation.y = 0;
+       this.cakeAnimating = false;
+     }
+   },
+   
+   toggleBalloonsAnimation() {
+     this.balloonsAnimating = !this.balloonsAnimating;
+   },
+   
+   changeBalloonsColor() {
+     if (this.balloonsModel) {
+       const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff];
+       this.balloonsModel.balloons.forEach((balloon, index) => {
+         balloon.material.color.setHex(colors[Math.floor(Math.random() * colors.length)]);
+       });
+     }
+   },
+   
+   // Particle system
+   createParticles() {
+     const particlesContainer = this.$refs.particles;
+     if (!particlesContainer) return;
+     
+     const createParticle = () => {
+       const particle = document.createElement('div');
+       particle.classList.add('particle');
+       particle.style.left = Math.random() * 100 + '%';
+       particle.style.backgroundColor = Math.random() > 0.5 ? 'var(--primary)' : 'var(--secondary)';
+       particle.style.animationDuration = (Math.random() * 3 + 5) + 's';
+       particle.style.animationDelay = Math.random() * 2 + 's';
+       
+       particlesContainer.appendChild(particle);
+       
+       setTimeout(() => {
+         if (particle && particle.parentNode) {
+           particle.remove();
+         }
+       }, 8000);
+     };
+     
+     // Create particles periodically
+     setInterval(createParticle, 500);
+   },
+   
+   // Confetti effect
+   createConfetti() {
+     const colors = ['#FF69B4', '#DA70D6', '#FFB6C1', '#FFD700', '#00CED1', '#FF1493'];
+     const confettiContainer = document.createElement('div');
+     confettiContainer.style.cssText = `
+       position: fixed;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       pointer-events: none;
+       z-index: 9999;
+     `;
+     document.body.appendChild(confettiContainer);
+
+     for (let i = 0; i < 100; i++) {
+       const confetti = document.createElement('div');
+       confetti.style.cssText = `
+         position: absolute;
+         width: 10px;
+         height: 10px;
+         background-color: ${colors[Math.floor(Math.random() * colors.length)]};
+         left: ${Math.random() * 100}vw;
+         top: -10px;
+         border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+         pointer-events: none;
+         animation: confettiFall ${Math.random() * 3 + 2}s linear forwards;
+       `;
+       
+       confettiContainer.appendChild(confetti);
+     }
+     
+     // Add confetti animation
+     if (!document.getElementById('confetti-styles')) {
+       const style = document.createElement('style');
+       style.id = 'confetti-styles';
+       style.textContent = `
+         @keyframes confettiFall {
+           to {
+             transform: translateY(100vh) translateX(${(Math.random() - 0.5) * 200}px) rotate(720deg);
+           }
+         }
+       `;
+       document.head.appendChild(style);
+     }
      
      setTimeout(() => {
-       particle.remove();
-     }, 8000);
-   }
-   
-   // Create particles periodically
-   setInterval(createParticle, 500);
- }
- 
- createParticles();
-});
-
-// Enhanced utility functions
-function toggleNav() {
- const navLinks = document.getElementById('navLinks');
- const toggle = document.querySelector('.mobile-toggle i');
- 
- navLinks.classList.toggle('active');
- 
- if (navLinks.classList.contains('active')) {
-   toggle.classList.remove('fa-bars');
-   toggle.classList.add('fa-times');
-   gsap.to(toggle, { rotation: 180, duration: 0.3 });
- } else {
-   toggle.classList.remove('fa-times');
-   toggle.classList.add('fa-bars');
-   gsap.to(toggle, { rotation: 0, duration: 0.3 });
- }
-}
-
-function scrollTo(id) {
-  const element = document.getElementById(id);
-  if (element) {
-    element.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
-  } else {
-    console.warn(`Element with ID "${id}" not found.`);
-  }
-}
-
- 
- // Close mobile nav
- const navLinks = document.getElementById('navLinks');
- const toggle = document.querySelector('.mobile-toggle i');
- navLinks.classList.remove('active');
- toggle.classList.remove('fa-times');
- toggle.classList.add('fa-bars');
- gsap.to(toggle, { rotation: 0, duration: 0.3 });
-
-
-function scrollToTop() {
- window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function openModal(id) {
- const modal = document.getElementById(id);
- modal.classList.add('active');
- 
- // Animate menu items
- gsap.fromTo(modal.querySelectorAll('.menu-list li'),
-   { opacity: 0, x: -20 },
-   { 
-     opacity: 1, 
-     x: 0, 
-     duration: 0.5, 
-     stagger: 0.1,
-     delay: 0.2,
-     ease: "power2.out"
-   }
- );
-}
-
-function closeModal(id) {
- document.getElementById(id).classList.remove('active');
-}
-
-function createSparkle(element) {
- const sparkle = document.createElement('div');
- sparkle.classList.add('sparkle');
- sparkle.innerHTML = '✨';
- sparkle.style.left = '50%';
- sparkle.style.top = '50%';
- 
- element.appendChild(sparkle);
- 
- // Animate sparkle
- gsap.fromTo(sparkle,
-   { scale: 0, rotation: 0 },
-   { 
-     scale: 1.5, 
-     rotation: 360, 
-     duration: 2,
-     ease: "power2.out",
-     onComplete: () => sparkle.remove()
-   }
- );
- 
- // Create burst effect
- gsap.to(element, {
-   scale: 1.3,
-   duration: 0.1,
-   yoyo: true,
-   repeat: 1,
-   ease: "power2.inOut"
- });
-}
-
-// Enhanced countdown timer with animations
-function updateCountdown() {
- const eventDate = new Date('2025-05-29T18:00:00').getTime();
- const now = new Date().getTime();
- const distance = eventDate - now;
-
- const days = Math.floor(distance / (1000 * 60 * 60 * 24));
- const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
- const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
- const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
- const daysEl = document.getElementById('days');
- const hoursEl = document.getElementById('hours');
- const minutesEl = document.getElementById('minutes');
- const secondsEl = document.getElementById('seconds');
-
- // Animate number changes
- if (daysEl.textContent !== days.toString().padStart(2, '0')) {
-   animateNumberChange(daysEl, days.toString().padStart(2, '0'));
- }
- if (hoursEl.textContent !== hours.toString().padStart(2, '0')) {
-   animateNumberChange(hoursEl, hours.toString().padStart(2, '0'));
- }
- if (minutesEl.textContent !== minutes.toString().padStart(2, '0')) {
-   animateNumberChange(minutesEl, minutes.toString().padStart(2, '0'));
- }
- if (secondsEl.textContent !== seconds.toString().padStart(2, '0')) {
-   animateNumberChange(secondsEl, seconds.toString().padStart(2, '0'));
- }
-
- if (distance < 0) {
-   document.getElementById('countdown').innerHTML = '<h2 style="color: var(--primary); font-size: 3rem; animation: party-pulse 1s ease-in-out infinite;">🎉 Party Time! 🎉</h2>';
-   
-   // Create confetti effect
-   createConfetti();
- }
-}
-
-function animateNumberChange(element, newValue) {
- gsap.to(element, {
-   scale: 1.2,
-   duration: 0.1,
-   ease: "power2.inOut",
-   onComplete: () => {
-     element.textContent = newValue;
-     gsap.to(element, {
-       scale: 1,
-       duration: 0.1,
-       ease: "power2.inOut"
-     });
-   }
- });
-}
-
-// Confetti effect for when countdown reaches zero
-function createConfetti() {
- const colors = ['#FF69B4', '#DA70D6', '#FFB6C1', '#FFD700', '#00CED1', '#FF1493'];
- const confettiContainer = document.createElement('div');
- confettiContainer.style.position = 'fixed';
- confettiContainer.style.top = '0';
- confettiContainer.style.left = '0';
- confettiContainer.style.width = '100%';
- confettiContainer.style.height = '100%';
- confettiContainer.style.pointerEvents = 'none';
- confettiContainer.style.zIndex = '9999';
- document.body.appendChild(confettiContainer);
-
- for (let i = 0; i < 100; i++) {
-   const confetti = document.createElement('div');
-   confetti.style.position = 'absolute';
-   confetti.style.width = '10px';
-   confetti.style.height = '10px';
-   confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-   confetti.style.left = Math.random() * 100 + 'vw';
-   confetti.style.top = '-10px';
-   confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
-   confetti.style.pointerEvents = 'none';
-   
-   confettiContainer.appendChild(confetti);
-   
-   gsap.to(confetti, {
-     y: window.innerHeight + 100,
-     x: (Math.random() - 0.5) * 200,
-     rotation: Math.random() * 720,
-     duration: Math.random() * 3 + 2,
-     ease: "power2.in",
-     onComplete: () => confetti.remove()
-   });
- }
- 
- setTimeout(() => confettiContainer.remove(), 5000);
-}
-
-// Enhanced scroll effects
-let lastScrollTop = 0;
-window.addEventListener('scroll', function() {
- const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
- const header = document.getElementById('header');
- const backToTop = document.getElementById('backToTop');
- 
- // Header scroll effect
- if (scrollTop > 50) {
-   header.classList.add('scrolled');
- } else {
-   header.classList.remove('scrolled');
- }
- 
- // Back to top button
- if (scrollTop > 300) {
-   backToTop.classList.add('show');
- } else {
-   backToTop.classList.remove('show');
- }
- 
- // Parallax effect for floating shapes
- const shapes = document.querySelectorAll('.floating-shape');
- shapes.forEach((shape, index) => {
-   const speed = 0.5 + (index * 0.1);
-   gsap.to(shape, {
-     y: scrollTop * speed,
-     duration: 0.1,
-     ease: "none"
-   });
- });
- 
- lastScrollTop = scrollTop;
-}, { passive: true });
-
-// Modal interactions
-window.addEventListener('click', function(e) {
- if (e.target.classList.contains('modal')) {
-   e.target.classList.remove('active');
- }
-});
-
-// Enhanced character interactions
-document.querySelectorAll('.character').forEach(character => {
- character.addEventListener('mouseenter', function() {
-   gsap.to(this, {
-     scale: 1.2,
-     rotation: 10,
-     duration: 0.3,
-     ease: "back.out(1.7)"
-   });
- });
- 
- character.addEventListener('mouseleave', function() {
-   gsap.to(this, {
-     scale: 1,
-     rotation: 0,
-     duration: 0.3,
-     ease: "back.out(1.7)"
-   });
- });
-});
-
-// Card hover effects
-document.querySelectorAll('.card').forEach(card => {
- card.addEventListener('mouseenter', function() {
-   gsap.to(this, {
-     y: -10,
-     scale: 1.02,
-     duration: 0.3,
-     ease: "power2.out"
-   });
-   
-   const icon = this.querySelector('.card-icon');
-   if (icon) {
-     gsap.to(icon, {
-       scale: 1.2,
-       rotation: 10,
-       duration: 0.3,
-       ease: "back.out(1.7)"
-     });
-   }
- });
- 
- card.addEventListener('mouseleave', function() {
-   gsap.to(this, {
-     y: 0,
-     scale: 1,
-     duration: 0.3,
-     ease: "power2.out"
-   });
-   
-   const icon = this.querySelector('.card-icon');
-   if (icon) {
-     gsap.to(icon, {
-       scale: 1,
-       rotation: 0,
-       duration: 0.3,
-       ease: "back.out(1.7)"
-     });
-   }
- });
-});
-
-// Navigation active state
-document.querySelectorAll('.nav-links a').forEach(link => {
- link.addEventListener('click', function() {
-   // Remove active class from all links
-   document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-   // Add active class to clicked link
-   this.classList.add('active');
- });
-});
-
-// Intersection Observer for section highlighting
-const observerOptions = {
- threshold: 0.3,
- rootMargin: '-20% 0px -70% 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
- entries.forEach(entry => {
-   if (entry.isIntersecting) {
-     const id = entry.target.id;
-     document.querySelectorAll('.nav-links a').forEach(link => {
-       link.classList.remove('active');
-       if (link.getAttribute('href') === `#${id}`) {
-         link.classList.add('active');
+       if (confettiContainer && confettiContainer.parentNode) {
+         confettiContainer.remove();
        }
-     });
+     }, 5000);
    }
- });
-}, observerOptions);
-
-// Observe all sections
-document.querySelectorAll('section').forEach(section => {
- observer.observe(section);
-});
-
-// Touch feedback for mobile
-function addTouchFeedback() {
- const touchElements = document.querySelectorAll('.card, .btn, .whatsapp-btn, .back-to-top, .character');
- 
- touchElements.forEach(element => {
-   element.addEventListener('touchstart', function() {
-     gsap.to(this, {
-       scale: 0.95,
-       duration: 0.1,
-       ease: "power2.out"
-     });
-   }, { passive: true });
-   
-   element.addEventListener('touchend', function() {
-     gsap.to(this, {
-       scale: 1,
-       duration: 0.2,
-       ease: "back.out(1.7)"
-     });
-   }, { passive: true });
- });
+ }
 }
 
-// Initialize touch feedback on mobile
-if ('ontouchstart' in window) {
- addTouchFeedback();
-}
-
-// Keyboard accessibility
-document.addEventListener('keydown', function(e) {
- // Escape to close modals
- if (e.key === 'Escape') {
-   document.querySelectorAll('.modal.active').forEach(modal => {
-     modal.classList.remove('active');
-   });
+// Alpine.js stores for global state management
+document.addEventListener('alpine:init', () => {
+ Alpine.store('theme', {
+   colors: {
+     primary: '#FF69B4',
+     secondary: '#DA70D6',
+     accent: '#FFB6C1'
+   },
    
-   // Close mobile nav
-   const navLinks = document.getElementById('navLinks');
-   if (navLinks.classList.contains('active')) {
-     toggleNav();
-   }
- }
- 
- // Enter to activate focused elements
- if (e.key === 'Enter') {
-   const focused = document.activeElement;
-   if (focused.classList.contains('card')) {
-     focused.click();
-   }
- }
-});
-
-// Make cards focusable for accessibility
-document.querySelectorAll('.card').forEach((card, index) => {
- card.setAttribute('tabindex', '0');
- card.setAttribute('role', 'button');
- card.setAttribute('aria-label', `Menu item ${index + 1}`);
-});
-
-// Performance optimization - pause animations when not visible
-const animationObserver = new IntersectionObserver((entries) => {
- entries.forEach(entry => {
-   const animations = entry.target.getAnimations?.() || [];
+   partyMode: false,
    
-   if (entry.isIntersecting) {
-     animations.forEach(animation => {
-       if (animation.playState === 'paused') {
-         animation.play();
-       }
-     });
-   } else {
-     animations.forEach(animation => {
-       if (animation.playState === 'running') {
-         animation.pause();
-       }
-     });
-   }
- });
-}, { threshold: 0 });
-
-// Observe animated elements
-document.querySelectorAll('.floating-shape, .character').forEach(element => {
- animationObserver.observe(element);
-});
-
-// Initialize countdown
-updateCountdown();
-setInterval(updateCountdown, 1000);
-
-// Close nav when clicking outside on mobile
-document.addEventListener('click', function(e) {
- const nav = document.getElementById('navLinks');
- const toggle = document.querySelector('.mobile-toggle');
- 
- if (!nav.contains(e.target) && !toggle.contains(e.target)) {
-   if (nav.classList.contains('active')) {
-     toggleNav();
-   }
- }
-});
-
-// Smooth reveal animation for elements entering viewport
-const revealObserver = new IntersectionObserver((entries) => {
- entries.forEach(entry => {
-   if (entry.isIntersecting) {
-     entry.target.classList.add('revealed');
-   }
- });
-}, { threshold: 0.1 });
-
-// Add reveal class for CSS animations
-document.querySelectorAll('.card, .content-card').forEach(element => {
- revealObserver.observe(element);
-});
-
-// Easter egg - Secret party mode
-let clickCount = 0;
-document.querySelector('.logo').addEventListener('click', function(e) {
- e.preventDefault();
- clickCount++;
- 
- if (clickCount === 5) {
-   // Activate party mode
-   document.body.style.animation = 'party-colors 2s ease-in-out infinite';
-   createConfetti();
-   
-   // Show special message
-   const partyMessage = document.createElement('div');
-   partyMessage.innerHTML = '🎉 PARTY MODE ACTIVATED! 🎉';
-   partyMessage.style.cssText = `
-     position: fixed;
-     top: 50%;
-     left: 50%;
-     transform: translate(-50%, -50%);
-     background: linear-gradient(135deg, var(--primary), var(--secondary));
-     color: white;
-     padding: 2rem 3rem;
-     border-radius: 25px;
-     font-size: 2rem;
-     font-weight: bold;
-     z-index: 10000;
-     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-   `;
-   
-   document.body.appendChild(partyMessage);
-   
-   gsap.fromTo(partyMessage,
-     { scale: 0, rotation: 180 },
-     { 
-       scale: 1, 
-       rotation: 0, 
-       duration: 1,
-       ease: "elastic.out(1, 0.75)"
+   togglePartyMode() {
+     this.partyMode = !this.partyMode;
+     if (this.partyMode) {
+       document.body.style.animation = 'party-colors 2s ease-in-out infinite';
+     } else {
+       document.body.style.animation = '';
      }
-   );
+   }
+ });
+ 
+ Alpine.store('interactions', {
+   clickCount: 0,
    
-   setTimeout(() => {
-     gsap.to(partyMessage, {
-       scale: 0,
-       rotation: -180,
-       duration: 0.5,
-       onComplete: () => {
-         partyMessage.remove();
-         document.body.style.animation = '';
+   logoClick() {
+     this.clickCount++;
+     if (this.clickCount === 5) {
+       Alpine.store('theme').togglePartyMode();
+       this.showPartyMessage();
+       this.clickCount = 0;
+     }
+   },
+   
+   showPartyMessage() {
+     const message = document.createElement('div');
+     message.innerHTML = '🎉 PARTY MODE ACTIVATED! 🎉';
+     message.style.cssText = `
+       position: fixed;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       background: linear-gradient(135deg, var(--primary), var(--secondary));
+       color: white;
+       padding: 2rem 3rem;
+       border-radius: 25px;
+       font-size: 2rem;
+       font-weight: bold;
+       z-index: 10000;
+       box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+       animation: partyMessagePop 1s ease-out;
+     `;
+     
+     document.body.appendChild(message);
+     
+     setTimeout(() => {
+       if (message && message.parentNode) {
+         message.remove();
+         Alpine.store('theme').togglePartyMode();
        }
-     });
-   }, 3000);
-   
-   clickCount = 0;
- }
+     }, 3000);
+   }
+ });
 });
 
-// Add party colors animation
-const partyStyle = document.createElement('style');
-partyStyle.textContent = `
+// Add party message animation
+const partyStyles = document.createElement('style');
+partyStyles.textContent = `
+ @keyframes partyMessagePop {
+   0% { transform: translate(-50%, -50%) scale(0) rotate(180deg); opacity: 0; }
+   50% { transform: translate(-50%, -50%) scale(1.1) rotate(10deg); }
+   100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+ }
+ 
  @keyframes party-colors {
    0% { filter: hue-rotate(0deg); }
    25% { filter: hue-rotate(90deg); }
@@ -2273,35 +1875,8 @@ partyStyle.textContent = `
    75% { filter: hue-rotate(270deg); }
    100% { filter: hue-rotate(360deg); }
  }
- 
- @keyframes party-pulse {
-   0%, 100% { transform: scale(1); }
-   50% { transform: scale(1.1); }
- }
 `;
-document.head.appendChild(partyStyle);
-
-// Performance monitoring
-const performanceObserver = new PerformanceObserver((list) => {
- for (const entry of list.getEntries()) {
-   if (entry.entryType === 'measure') {
-     console.log(`${entry.name}: ${entry.duration}ms`);
-   }
- }
-});
-
-performanceObserver.observe({ entryTypes: ['measure'] });
-
-// Cleanup on page unload
-window.addEventListener('beforeunload', () => {
- // Clean up observers
- observer.disconnect();
- animationObserver.disconnect();
- revealObserver.disconnect();
- performanceObserver.disconnect();
-});
-
-console.log('🎉 Isha\'s Birthday Website Loaded Successfully! 🎉');
+document.head.appendChild(partyStyles);
 </script>
 
 </body>
